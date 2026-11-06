@@ -1,0 +1,24 @@
+TP2 - reponses
+
+Q1. L'état de la machine est stocké dans une simple variable "currentState", qui vaut soit IDLE, soit DRAWING.
+
+Q2. On utilise un if / else pour tester dans quel état on se trouve et décider quoi faire.
+
+Q3. Chaque état est représenté par un objet (une classe : IdleState et DrawingState). La variable currentState pointe vers l'objet de l'état actuel.
+
+Q4. Les if / else ont disparu. On appelle simplement la méthode de l'état courant, et c'est chaque état qui sait quoi faire.
+
+Q5. État : idle. Événement : MOUSECLICK. Transition : dans idle, MOUSECLICK mène vers l'état cible drawing (avec l'action createLine).
+
+Q6. C'est la transition MOUSECLICK dans l'état drawing, qui mène vers idle. L'action correspondante est la fonction saveLine.
+
+Q7. J'ai modifié la ligne rubber.stroke("black") dans saveLine en la remplaçant par rubber.stroke("blue").
+
+Q8. Avec xState, tout le comportement est décrit au même endroit, de façon claire, et on peut le visualiser sous forme de schéma. Le code est donc plus simple à lire et à modifier.
+
+Q9. Matrice États x Événements
+
+État / Événement   MOUSECLICK            MOUSEMOVE
+
+idle               createLine -> drawing rien       
+drawing            saveLine -> idle      setLastPoint 

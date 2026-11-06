@@ -55,8 +55,9 @@ const polylineMachine = setup({
         },
         // Abandonner le tracé de la polyline
         abandon: () => {
-            // Supprimer la variable polyline :
-            
+            polyline.remove();    
+            polyline = undefined; 
+            layer.batchDraw();    
         },
         // Supprimer le dernier point de la polyline
         removeLastPoint: () => {
@@ -73,7 +74,7 @@ const polylineMachine = setup({
         pasPlein: () => {
             // Retourner vrai si la polyline a moins de 10 points
             // attention : dans le tableau de points, chaque point est représenté par 2 valeurs (coordonnées x et y)
-            
+            return polyline.points().length / 2 - 1 < MAX_POINTS;
         },
         // On peut enlever un point
         plusDeDeuxPoints: () => {
@@ -82,10 +83,68 @@ const polylineMachine = setup({
         },
     },
 }).createMachine({
+    /** @xstate-layout N4IgpgJg5mDOIC5QAcD2AbAngGQJYDswA6XCdMAYgFkB5AVQGUBRAYWwEkWBpAbQAYAuohSpYuAC65U+YSAAeiALQBmABwAaEJkTKAbEQDsAVgC+JzWix5CRaWAAKqAuOr1mtAGpN+QpCDRiktKyCggATGHKmtoIigAsAJxEYabm-hg4BMR2js6ujKwc3D6yARJSMn6hYapG0YhhfMqGqRYZ1tmEufguTLAAxgCGyGAlfmVBlaChigCMdVpKCc2t6VZZRAC2g-iY3eKw+e40XmMigRUhSsp8CzGzkUQJRsoPq5aZNtu7+4e0BWxOLxBKVROVglUlJE+PUEHE4mEni83mY2usvjs9k4eocAEKDfoAa1gyAJoxB4zBkyusTisyICNmqmMsNmygMRF0BgSumZ73aG2+WOchyYPTAACczukLhDpko4nx9HFkSlYYojKpkjy+ai1p9iELfhQ+kMRtKJpdIbEjEYOSrXmrFrE3trecYzGl8KgIHBQeiwKDZVN5EpdLcGaq7lCHoYdR60h8OiQyIHKcGaXNdLNYcojER+QHbF1seIg+CQ6E2TDnXmC3qk4LMb9y9TrXNVAlc7N9AYmijPUA */
     id: "polyLine",
     initial: "idle",
     states: {
-        idle: {},
+        idle: {
+            on: {
+                MOUSECLICK: {
+                    target: "onePoint",
+                    reenter: true,
+                    actions: "createLine"
+                }
+            }
+        },
+
+        onePoint: {
+            on: {
+                MOUSEMOVE: {
+                    target: "onePoint",
+                    actions: "setLastPoint"
+                },
+
+                MOUSECLICK: {
+                    target: "manyPoints",
+                    actions: "addPoint"
+                },
+
+                Escape: {
+                    target: "idle",
+                    actions: "abandon"
+                }
+            }
+        },
+        manyPoints: {
+            on: {
+                MOUSEMOVE: {
+                    target: "manyPoints",
+                    actions: "setLastPoint"
+                },
+
+                MOUSECLICK: {
+                    target: "manyPoints",
+                    actions: "addPoint",
+                    guard: "pasPlein"
+                },
+
+                Backspace: {
+                    target: "manyPoints",
+                    actions: "removeLastPoint",
+                    guard: "plusDeDeuxPoints"
+                },
+
+                Enter: {
+                    target: "idle",
+                    actions: "saveLine"
+                },
+
+                Escape: {
+                    target: "idle",
+                    actions: "abandon"
+                }
+            }
+        }
     },
 });
 
